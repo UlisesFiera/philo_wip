@@ -14,6 +14,7 @@
 
 void	wait_all_threads_ready(t_data *input)
 {
-	while (!get_status(&input->data_mutex, &input->all_threads_ready, input))
-		;
+	while (!get_status(&input->data_mutex, &input->all_threads_ready))
+		usleep(1000);
+	;
 }

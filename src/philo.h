@@ -100,24 +100,25 @@ struct					s_data
 // Prototypes
 // ·· Main functions
 
-void	parse_input(t_data *input, char **argv);
-long	timestamp(t_data *input);
-void	error_exit(char *error, t_data *data);
+int		parse_input(t_data *input, char **argv);
+long	timestamp(void);
+void	error_exit(char *error);
 void	data_init(t_data *input);
+void	free_all(t_data *data);
 
 // ·· Safe functions
 
-void	safe_mutex(t_mutex *mutex, int opcode, t_data *input);
-void	*safe_malloc(size_t bytes, t_data *input);
+void	safe_mutex(t_mutex *mutex, int opcode);
+void	*safe_malloc(size_t bytes);
 void	safe_thread(pthread_t *philo_thread_id, void *(*function)(void *),
-					t_philo *philos, int opcode, t_data *input);
+					t_philo *philos, int opcode);
 
 // ·· Setters / Getters
 
-void	set_status(t_mutex *mutex, int *status, int value, t_data *input);
-void	set_long(t_mutex *mutex, long *number, long value, t_data *input);
-int		get_status(t_mutex *mutex, int *number, t_data *input);
-long	get_long(t_mutex *mutex, long *number, t_data *input);
+void	set_status(t_mutex *mutex, int *status, int value);
+void	set_long(t_mutex *mutex, long *number, long value);
+int		get_status(t_mutex *mutex, int *status);
+long	get_long(t_mutex *mutex, long *number);
 void	wait_all_threads_ready(t_data *input);
 
 // ·· Dinner simulation

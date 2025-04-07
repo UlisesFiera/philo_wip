@@ -15,11 +15,12 @@
 void	write_action(int action, t_philo *philo)
 {
 	long	elapsed;
+	long	current;
 
-	elapsed = timestamp(philo->input) - (philo->input->time_start);
-	safe_mutex(&philo->input->write_mutex, 0, philo->input);
-	if (!get_status(&philo->input->data_mutex, &philo->input->end_program,
-					philo->input))
+	safe_mutex(&philo->input->write_mutex, 0);
+	current = timestamp();
+	elapsed =  current - (philo->input->time_start);
+	if (!get_status(&philo->input->data_mutex, &philo->input->end_program))
 	{
 		if ((action == 4) || (action == 5)) 
 			printf(Y"%-6ld"RST" %d has taken a fork\n", elapsed, philo->id);
@@ -32,7 +33,7 @@ void	write_action(int action, t_philo *philo)
 		if (action == 3)
 			printf(Y"%-6ld"RST" %d is thinking\n", elapsed, philo->id);
 	}
-	safe_mutex(&philo->input->write_mutex, 1, philo->input);
+	safe_mutex(&philo->input->write_mutex, 1);
 }
 
 /* ACTION OPCODES

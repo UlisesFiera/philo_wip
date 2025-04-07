@@ -12,12 +12,12 @@
 
 #include "philo.h"
 
-void	*safe_malloc(size_t bytes, t_data *input)
+void	*safe_malloc(size_t bytes)
 {
 	void	*memory;
 
 	memory = malloc(bytes);
 	if (memory == NULL)
-		error_exit("Malloc couldn't allocate memory", input);
+		error_exit("Malloc couldn't allocate memory");
 	return (memory);
 }

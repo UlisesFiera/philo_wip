@@ -22,6 +22,7 @@ SRCS					= src/main.c \
 						  src/timestamp.c \
 						  src/wait_all_threads_ready.c \
 						  src/write_action.c \
+						  src/free_all.c \
 
 OBJS					= ${SRCS:.c=.o}
 

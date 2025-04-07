@@ -12,12 +12,12 @@
 
 #include "philo.h"
 
-long	get_long(t_mutex *mutex, long *number, t_data *input)
+long	get_long(t_mutex *mutex, long *number)
 {
 	long	ret_value;
 
-	safe_mutex(mutex, 0, input);
+	safe_mutex(mutex, 0);
 	ret_value = *number;
-	safe_mutex(mutex, 1, input);
+	safe_mutex(mutex, 1);
 	return (ret_value);
 }

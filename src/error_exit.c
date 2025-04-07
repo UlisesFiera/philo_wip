@@ -12,25 +12,8 @@
 
 #include "philo.h"
 
-void	free_all(t_data *data)
+void	error_exit(char *error)
 {
-	if (data->philos)
-	{
-		if (data->philos->first_fork)
-			free(data->philos->first_fork);
-		if (data->philos->second_fork)
-			free(data->philos->second_fork);
-		if (data->philos->input)
-			free_all(data->philos->input);
-		free(data->philos);
-	}
-	if (data->forks)
-		free(data->forks);
-}
-
-void	error_exit(char *error, t_data *data)
-{
-	free_all(data);
 	printf(R "%s" RST "\n", error);
-	exit(EXIT_FAILURE);
+	return ;
 }

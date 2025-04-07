@@ -12,11 +12,11 @@
 
 #include "philo.h"
 
-long	timestamp(t_data *input)
+long	timestamp(void)
 {
 	struct timeval	tv;
 
 	if (gettimeofday(&tv, NULL))
-		error_exit("'gettimeofday' failure", input);
+		error_exit("'gettimeofday' failure");
 	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }

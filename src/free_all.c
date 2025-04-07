@@ -1,20 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   set_status.c                                       :+:      :+:    :+:   */
+/*   free_all(wip).c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ulfernan <ulfernan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/05 12:07:43 by ulfernan          #+#    #+#             */
-/*   Updated: 2025/04/05 12:07:43 by ulfernan         ###   ########.fr       */
+/*   Created: 2025/04/07 09:08:47 by ulfernan          #+#    #+#             */
+/*   Updated: 2025/04/07 09:08:47 by ulfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	set_status(t_mutex *mutex, int *status, int value)
+void	free_all(t_data *data)
 {
-	safe_mutex(mutex, 0);
-	*status = value;
-	safe_mutex(mutex, 1);
+	int	i;
+
+	safe_mutex(&data->data_mutex, 3);
+	safe_mutex(&data->write_mutex, 3);
+	i = 0;
+	if (data->forks)
+	{
+		while (i < data->nbr_philo)
+		{
+			safe_mutex(&data->forks[i].fork_mutex, 3);
+			i++;
+		}
+		free(data->forks);
+	}
+	i = 0;
+	if (data->philos)
+	{
+		while (i < data->nbr_philo)
+		{
+			safe_mutex(&data->philos[i].philo_mutex, 3);
+			i++;
+		}
+		free(data->philos);
+	}
 }
+		

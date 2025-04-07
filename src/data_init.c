@@ -41,7 +41,7 @@ void	philo_init(t_data *input)
 		philo->full = 0;
 		philo->meal_count = 0;
 		philo->input = input;
-		safe_mutex(&philo->philo_mutex, 2, input);
+		safe_mutex(&philo->philo_mutex, 2);
 		assign_forks(philo, input->forks, i);
 		i++;
 	}
@@ -53,14 +53,15 @@ void	data_init(t_data *input)
 
 	input->end_program = 0;
 	input->all_threads_ready = 0;
-	input->philos = safe_malloc(sizeof(t_philo) * input->nbr_philo, input);
-	safe_mutex(&input->data_mutex, 2, input);
-	safe_mutex(&input->write_mutex, 2, input);
-	input->forks = safe_malloc(sizeof(t_fork) * input->nbr_philo, input);
+	input->philos = safe_malloc(sizeof(t_philo) * input->nbr_philo);
+	input->time_start = timestamp();
+	safe_mutex(&input->data_mutex, 2);
+	safe_mutex(&input->write_mutex, 2);
+	input->forks = safe_malloc(sizeof(t_fork) * input->nbr_philo);
 	i = 0;
 	while (i < input->nbr_philo)
 	{
-		safe_mutex(&input->forks[i].fork_mutex, 2, input);
+		safe_mutex(&input->forks[i].fork_mutex, 2);
 		input->forks[i].fork_id = i;
 		i++;
 	}

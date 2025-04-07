@@ -12,9 +12,9 @@
 
 #include "philo.h"
 
-void	set_long(t_mutex *mutex, long *number, long value, t_data *input)
+void	set_long(t_mutex *mutex, long *number, long value)
 {
-	safe_mutex(mutex, 0, input);
+	safe_mutex(mutex, 0);
 	*number = value;
-	safe_mutex(mutex, 1, input);
+	safe_mutex(mutex, 1);
 }

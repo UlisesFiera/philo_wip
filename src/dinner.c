@@ -14,8 +14,7 @@
 
 void	actions(t_philo *philo)
 {
-	while (!get_status(&philo->input->data_mutex, &philo->input->end_program,
-			philo->input))
+	while (!get_status(&philo->input->data_mutex, &philo->input->end_program))
 	{
 		if (philo->full)
 			return ;
@@ -42,6 +41,7 @@ void	dinner_start(t_data *input)
 {
 	int	i;
 
+	i = 0;
 	if (input->nbr_max_meals == 0)
 		return ;
 	else
@@ -49,16 +49,15 @@ void	dinner_start(t_data *input)
 		while (i < input->nbr_philo)
 		{
 			safe_thread(&input->philos[i].philo_thread_id, dinner_simulation,
-						&input->philos[i], 0, input);
+						&input->philos[i], 0);
 			i++;
 		}
 	}
-	input->time_start = timestamp(input);
-	set_status(&input->data_mutex, &input->all_threads_ready, 1, input);
+	set_status(&input->data_mutex, &input->all_threads_ready, 1);
 	i = 0;
 	while (i < input->nbr_philo)
 	{
-		safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 1, input);
+		safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 1);
 		i++;
 	}
 }

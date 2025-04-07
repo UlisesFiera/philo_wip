@@ -18,13 +18,19 @@ int	main(int argc, char **argv)
 
 	if (argc == 5 || argc == 6)
 	{
-		parse_input(&input, argv);
+		if (parse_input(&input, argv) == 1)
+		{
+			free_all(&input);
+			return (1);
+		}
 		data_init(&input);
 		dinner_start(&input);
+		free_all(&input);
 	}
 	else
 	{
 		error_exit("Incorrect input\n" 
-			Y "Use: <./philo nbr0 nbr1 nbr2 nbr3 [nbr4]" RST, &input);
+			Y "Use: <./philo nbr0 nbr1 nbr2 nbr3 [nbr4]" RST);
 	}
+	return (0);
 }
