@@ -1,0 +1,9 @@
+Tasks
+
+	Update the Makefile based on the last projects; they are
+	at the school.
+
+Progress
+
+	1. Timestamps created.
+	2. Coding init function, afraid of leaks cause of previous malloc's.
