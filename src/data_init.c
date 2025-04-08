@@ -47,7 +47,7 @@ void	philo_init(t_data *input)
 	}
 }
 
-void	data_init(t_data *input)
+int	data_init(t_data *input)
 {
 	int	i;
 
@@ -66,4 +66,5 @@ void	data_init(t_data *input)
 		i++;
 	}
 	philo_init(input);
+	return (0);
 }

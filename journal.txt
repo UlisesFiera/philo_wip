@@ -1,7 +1,11 @@
+Version
+
+	- wip v0.1: works, but there are leaks and missing features like the monitor.
+
 Tasks
 
-	Update the Makefile based on the last projects; they are
-	at the school.
+	- Update the Makefile based on the last projects; they are
+	  at the school.
 
 Progress
 

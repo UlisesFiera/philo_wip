@@ -103,7 +103,7 @@ struct					s_data
 int		parse_input(t_data *input, char **argv);
 long	timestamp(void);
 void	error_exit(char *error);
-void	data_init(t_data *input);
+int		data_init(t_data *input);
 void	free_all(t_data *data);
 
 // ·· Safe functions

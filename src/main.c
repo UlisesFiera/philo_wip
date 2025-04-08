@@ -18,7 +18,7 @@ int	main(int argc, char **argv)
 
 	if (argc == 5 || argc == 6)
 	{
-		if (parse_input(&input, argv) == 1)
+		if (parse_input(&input, argv))
 		{
 			free_all(&input);
 			return (1);
