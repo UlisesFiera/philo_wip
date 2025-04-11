@@ -12,8 +12,10 @@
 
 #include "philo.h"
 
-void	sleeping(t_philo *philo)
+int	sleeping(t_philo *philo)
 {
-	write_action(2, philo);
+	if (write_action(2, philo))
+		return (1);
 	usleep(philo->input->time_to_sleep);
+	return (0);
 }

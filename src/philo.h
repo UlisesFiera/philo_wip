@@ -52,9 +52,9 @@
 // Color
 
 # define RST	"\033[0m"
-# define R		"\033[1;31mm"
-# define G		"\033[1;32mm"
-# define Y		"\033[1;33mm"
+# define R		"\033[1;31m"
+# define G		"\033[1;32m"
+# define Y		"\033[1;33m"
 
 // Structures
 
@@ -72,6 +72,7 @@ typedef struct			s_philo
 {
 	int			id;
 	pthread_t	philo_thread_id;
+	int			detached;
 	long		meal_count;
 	int			full;
 	long		time_last_meal;
@@ -83,18 +84,21 @@ typedef struct			s_philo
 
 struct					s_data
 {
-	long	nbr_philo;
-	long	time_to_die;
-	long	time_to_eat;
-	long	time_to_sleep;
-	long	time_start;
-	int		end_program;
-	long	nbr_max_meals;
-	int		all_threads_ready;
-	t_mutex	data_mutex;
-	t_mutex	write_mutex;
-	t_fork	*forks;
-	t_philo	*philos;
+	long		nbr_philo;
+	long		time_to_die;
+	long		time_to_eat;
+	long		time_to_sleep;
+	long		time_start;
+	int			end_program;
+	long		nbr_max_meals;
+	int			all_threads_ready;
+	pthread_t	monitor_dead;
+	int			monitor_detached;
+	long		nbr_threads_ready;
+	t_mutex		data_mutex;
+	t_mutex		write_mutex;
+	t_fork		*forks;
+	t_philo		*philos;
 };
 
 // Prototypes
@@ -108,25 +112,28 @@ void	free_all(t_data *data);
 
 // ·· Safe functions
 
-void	safe_mutex(t_mutex *mutex, int opcode);
+int		safe_mutex(t_mutex *mutex, int opcode);
 void	*safe_malloc(size_t bytes);
-void	safe_thread(pthread_t *philo_thread_id, void *(*function)(void *),
-					t_philo *philos, int opcode);
+int		safe_thread(pthread_t *philo_thread_id, void *(*function)(void *),
+					void *data, int opcode);
 
 // ·· Setters / Getters
 
-void	set_status(t_mutex *mutex, int *status, int value);
-void	set_long(t_mutex *mutex, long *number, long value);
+int		set_status(t_mutex *mutex, int *status, int value);
+int		set_long(t_mutex *mutex, long *number, long value);
 int		get_status(t_mutex *mutex, int *status);
 long	get_long(t_mutex *mutex, long *number);
-void	wait_all_threads_ready(t_data *input);
+int		increase_long(t_mutex *mutex, long *value);
+int		wait_all_threads_ready(t_data *input);
+int		all_threads_running(t_mutex *mutex, long *threads, long nbr_philo, t_data *input);
 
 // ·· Dinner simulation
 
 void	dinner_start(t_data *input);
-void	eat(t_philo *philo);
-void	sleeping(t_philo *philo);
-void	think(t_philo *philo);
-void	write_action(int action, t_philo *philo);
+int		eat(t_philo *philo);
+int		sleeping(t_philo *philo);
+int		think(t_philo *philo);
+int		write_action(int action, t_philo *philo);
+void	*dead_philos(void *input);
 
 #endif

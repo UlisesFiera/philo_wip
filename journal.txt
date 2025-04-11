@@ -13,3 +13,8 @@ Progress
 	2. Coding init function, afraid of leaks cause of previous malloc's.
 	3. Finishing off free_all for dinner and init; also gotta create a 
 	   monitor for dead philos.
+	4. I have to check the ret values in dinner and manage the end of the
+	   simulation.
+	5. All good but have to check if the monitor is working and if all 
+	   filos are actually full on end.
+	6. Philos are full.

@@ -14,7 +14,7 @@
 
 static int	check_max_min(long digit)
 {
-	if (digit < -1)
+	if (digit == -1)
 		return (1);
 	if (digit > 2147483647)
 	{
@@ -24,14 +24,18 @@ static int	check_max_min(long digit)
 	return (0);
 }
 
-static void	check_digit(const char *string)
+static int	check_digit(const char *string)
 {
 	while (*string)
 	{
 		if (*string < '0' || *string > '9')
+		{
 			error_exit("Incorrect input: All inputs should be ints");
+			return (1);
+		}
 		string++;
 	}
+	return (0);
 }
 
 static long	atol_input(const char *string)
@@ -49,7 +53,8 @@ static long	atol_input(const char *string)
 		error_exit("Incorrect input: All ints should be positive");
 		return (-1);
 	}
-	check_digit(string);
+	if (check_digit(string))
+		return (-1);
 	while (*string)
 		number = number * 10 + (*string++ - '0');
 	return (number);

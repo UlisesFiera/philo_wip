@@ -12,10 +12,10 @@
 
 #include "philo.h"
 
-void	exec_thread(int return_value, int opcode)
+int	exec_thread(int return_value, int opcode)
 {
 	if (!return_value)
-		return ;
+		return (0);
 	else
 	{
 		if (opcode == 0)
@@ -30,18 +30,30 @@ void	exec_thread(int return_value, int opcode)
 		{
 			error_exit("Thread detach failure.");
 		}
+		return (1);
 	}
 }
 
-void	safe_thread(pthread_t *philo_thread_id, void *(*function)(void *),
-					t_philo *philos, int opcode)
+int	safe_thread(pthread_t *thread, void *(*function)(void *),
+					void *data, int opcode)
 {
 	if (opcode == 0)
-		exec_thread(pthread_create(philo_thread_id, NULL, function, philos), 0);
+	{
+		if (exec_thread(pthread_create(thread,
+			NULL, function, data), 0))
+			return (1);
+	}
 	else if (opcode == 1)
-		exec_thread(pthread_join(*philo_thread_id, NULL), 1);
+	{
+		if (exec_thread(pthread_join(*thread, NULL), 1))
+			return (1);
+	}
 	else if (opcode == 2)
-		exec_thread(pthread_detach(*philo_thread_id), 2);
+	{
+		if (exec_thread(pthread_detach(*thread), 2))
+			return (1);
+	}
+	return (0);
 }
 
 /* Thread opcode's

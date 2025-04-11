@@ -16,8 +16,10 @@ int	get_status(t_mutex *mutex, int *status)
 {
 	int	ret_value;
 
-	safe_mutex(mutex, 0);
+	if (safe_mutex(mutex, 0))
+		return (-1);
 	ret_value = *status;
-	safe_mutex(mutex, 1);
+	if (safe_mutex(mutex, 1))
+		return (-1);
 	return (ret_value);
 }

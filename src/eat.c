@@ -12,19 +12,29 @@
 
 #include "philo.h"
 
-void	eat(t_philo *philo)
+int	eat(t_philo *philo)
 {
-	safe_mutex(&philo->first_fork->fork_mutex, 0);
-	write_action(4, philo);
-	safe_mutex(&philo->second_fork->fork_mutex, 0);
-	write_action(5, philo);
-	set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp());
+	if (safe_mutex(&philo->first_fork->fork_mutex, 0))
+		return (1);
+	if (write_action(4, philo))
+		return (1);
+	if (safe_mutex(&philo->second_fork->fork_mutex, 0))
+		return (1);
+	if (write_action(5, philo))
+		return (1);
+	if (set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp()))
+		return (1);
 	philo->meal_count++;
-	write_action(1, philo);
+	if (write_action(1, philo))
+		return (1);
 	usleep(philo->input->time_to_eat);
 	if (philo->input->nbr_max_meals > 0
 		&& philo->meal_count == philo->input->nbr_max_meals)
-		set_status(&philo->philo_mutex, &philo->full, 1);
-	safe_mutex(&philo->first_fork->fork_mutex, 1);
-	safe_mutex(&philo->second_fork->fork_mutex, 1);
+		if (set_status(&philo->philo_mutex, &philo->full, 1))
+			return (1);
+	if (safe_mutex(&philo->first_fork->fork_mutex, 1))
+		return (1);
+	if (safe_mutex(&philo->second_fork->fork_mutex, 1))
+		return (1);
+	return (0);
 }

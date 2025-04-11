@@ -12,19 +12,71 @@
 
 #include "philo.h"
 
+void	*one_philo(void *data)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)data;
+	if (wait_all_threads_ready(philo->input))
+		return (NULL);
+	if (set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp()))
+		return (NULL);
+	if (increase_long(&philo->input->data_mutex, &philo->input->nbr_threads_ready))
+		return (NULL);
+	if (write_action(4, philo))
+		return (NULL);
+	while (!get_status(&philo->input->data_mutex, &philo->input->end_program))
+		usleep(200);
+	return (NULL);
+}
+
 void	actions(t_philo *philo)
 {
-	while (!get_status(&philo->input->data_mutex, &philo->input->end_program))
+	int		ret_value;
+
+	while ((ret_value = get_status(&philo->input->data_mutex, &philo->input->end_program)) == 0)
 	{
 		if (philo->full)
 			return ;
 		else
 		{
-			eat(philo);
-			sleeping(philo);
-			think(philo);
+			if (eat(philo))
+			{
+				if (set_status(&philo->input->data_mutex, &philo->input->end_program, 1))
+				{
+					philo->input->end_program = 1;
+					return ;
+				}
+				return ;
+			}
+			if (philo->full)
+				return ;
+			if (sleeping(philo))
+			{
+				if (set_status(&philo->input->data_mutex, &philo->input->end_program, 1))
+				{
+					philo->input->end_program = 1;
+					return ;
+				}
+				return ;
+			}
+			if (think(philo))
+			{
+				if (set_status(&philo->input->data_mutex, &philo->input->end_program, 1))
+				{
+					philo->input->end_program = 1;
+					return ;
+				}
+				return ;
+			}
 		}
 	}
+	if (ret_value == -1)
+	{
+		philo->input->end_program = 1;
+		return ;
+	}
+	return ;
 }
 
 void	*dinner_simulation(void *input)
@@ -32,34 +84,62 @@ void	*dinner_simulation(void *input)
 	t_philo	*philo;
 
 	philo = (t_philo *)input;
-	wait_all_threads_ready(philo->input);
+	if (wait_all_threads_ready(philo->input))
+		return (NULL);
+	if (set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp()))
+		return (NULL);
+	if (increase_long(&philo->input->data_mutex, &philo->input->nbr_threads_ready))
+		return (NULL);
 	actions(philo);
 	return (NULL);
 }
 
 void	dinner_start(t_data *input)
 {
-	int	i;
+	int		i;
 
 	i = 0;
 	if (input->nbr_max_meals == 0)
 		return ;
+	else if (input->nbr_philo == 1)
+	{
+		if (safe_thread(&input->philos[0].philo_thread_id, one_philo, &input->philos[0], 0))
+			return ;
+	}
 	else
 	{
 		while (i < input->nbr_philo)
 		{
-			safe_thread(&input->philos[i].philo_thread_id, dinner_simulation,
-						&input->philos[i], 0);
+			if (safe_thread(&input->philos[i].philo_thread_id, dinner_simulation,
+						&input->philos[i], 0))
+						return ;
 			i++;
 		}
 	}
-	set_status(&input->data_mutex, &input->all_threads_ready, 1);
+	if (safe_thread(&input->monitor_dead, dead_philos, input, 0))
+		return ;
+	if (set_status(&input->data_mutex, &input->all_threads_ready, 1))
+		return ;
 	i = 0;
 	while (i < input->nbr_philo)
 	{
-		safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 1);
+		if (safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 1))
+		{
+			if (set_status(&input->data_mutex, &input->end_program, 1))
+			{
+				input->end_program = 1;
+				return ;
+			}
+			return ;
+		}
+		input->philos[i].detached = 1;
 		i++;
 	}
+	if (set_status(&input->data_mutex, &input->end_program, 1))
+		return ;
+	safe_thread(&input->monitor_dead, NULL, NULL, 1);
+	input->monitor_detached = 1;
+	return ;
 }
 
 /* ACTION OPCODES
@@ -79,5 +159,10 @@ void	dinner_start(t_data *input)
 	moving forward in it's execution. This means for example that wait_for_threads
 	and set_status will both be executed, so the spinlock will break because
 	eventually set_status will set all threads (philo) as true (1).
+
+	If a mutex fails, I just change the general error flag to 1 without mutex.
+	Even though is a race condition, it doesn't matter because it only happens on
+	failure, and the theoretical possibility that the 0 to 1 writting gets
+	corrupted is totally remote.
 
 */

@@ -17,6 +17,9 @@ long	timestamp(void)
 	struct timeval	tv;
 
 	if (gettimeofday(&tv, NULL))
+	{
 		error_exit("'gettimeofday' failure");
+		return (-1);
+	}
 	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }

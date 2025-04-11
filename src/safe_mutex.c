@@ -12,10 +12,10 @@
 
 #include "philo.h"
 
-void	exec_mutex(int return_value)
+int	exec_mutex(int return_value)
 {
 	if (return_value == 0)
-		return ;
+		return (0);
 	else
 	{
 		if (return_value == 22)
@@ -32,19 +32,33 @@ void	exec_mutex(int return_value)
 			error_exit("Insufficient memory to initialize mutex.");
 		if (return_value == 4)
 			error_exit("Interrupted by a signal.");
+		return (1);
 	}
 }
 
-void	safe_mutex(t_mutex *mutex, int opcode)
+int	safe_mutex(t_mutex *mutex, int opcode)
 {
 	if (opcode == 0)
-		exec_mutex(pthread_mutex_lock(mutex));
+	{
+		if (exec_mutex(pthread_mutex_lock(mutex)))
+			return (1);
+	}
 	else if (opcode == 1)
-		exec_mutex(pthread_mutex_unlock(mutex));
+	{
+		if (exec_mutex(pthread_mutex_unlock(mutex)))
+			return (1);
+	}
 	else if (opcode == 2)
-		exec_mutex(pthread_mutex_init(mutex, NULL));
+	{
+		if (exec_mutex(pthread_mutex_init(mutex, NULL)))
+			return (1);
+	}
 	else if (opcode == 3)
-		exec_mutex(pthread_mutex_destroy(mutex));
+	{
+		if (exec_mutex(pthread_mutex_destroy(mutex)))
+			return (1);
+	}
+	return (0);
 }
 
 /* MUTEX opcode's

@@ -16,8 +16,10 @@ long	get_long(t_mutex *mutex, long *number)
 {
 	long	ret_value;
 
-	safe_mutex(mutex, 0);
+	if (safe_mutex(mutex, 0))
+		return (-1);
 	ret_value = *number;
-	safe_mutex(mutex, 1);
+	if (safe_mutex(mutex, 1))
+		return (-1);
 	return (ret_value);
 }

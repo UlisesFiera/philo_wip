@@ -12,31 +12,47 @@
 
 #include "philo.h"
 
-void	free_all(t_data *data)
+void	detach_all(t_data *input)
 {
 	int	i;
 
-	safe_mutex(&data->data_mutex, 3);
-	safe_mutex(&data->write_mutex, 3);
 	i = 0;
-	if (data->forks)
+	while (i < input->nbr_philo)
 	{
-		while (i < data->nbr_philo)
-		{
-			safe_mutex(&data->forks[i].fork_mutex, 3);
-			i++;
-		}
-		free(data->forks);
+		if (input->philos[i].detached == 0)
+			safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 2);
+		i++;
+	}
+	if (input->monitor_detached == 0)
+		safe_thread(&input->monitor_dead, NULL, NULL, 2);
+}
+
+void	destroy_mutex(t_data *input)
+{
+	int	i;
+	
+	i = 0;
+	safe_mutex(&input->data_mutex, 3);
+	safe_mutex(&input->write_mutex, 3);
+	while (i < input->nbr_philo)
+	{
+		safe_mutex(&input->forks[i].fork_mutex, 3);
+		i++;
 	}
 	i = 0;
-	if (data->philos)
+	while (i < input->nbr_philo)
 	{
-		while (i < data->nbr_philo)
-		{
-			safe_mutex(&data->philos[i].philo_mutex, 3);
-			i++;
-		}
-		free(data->philos);
+		safe_mutex(&input->philos[i].philo_mutex, 3);
+		i++;
 	}
 }
-		
+
+void	free_all(t_data *input)
+{
+	detach_all(input);
+	destroy_mutex(input);
+	if (input->forks)
+		free(input->forks);
+	if (input->philos)
+		free(input->philos);
+}
