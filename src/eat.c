@@ -14,6 +14,18 @@
 
 int	eat(t_philo *philo)
 {
+	int	ret_value;
+
+	ret_value = 0;
+	while (get_status(&philo->philo_mutex, &philo->ready) == 0)
+	{
+		ret_value = get_status(&philo->philo_mutex, &philo->ready);
+		if (ret_value == -1)
+		{
+			philo->input->end_program = 1;
+			return (1);
+		}
+	}
 	if (safe_mutex(&philo->first_fork->fork_mutex, 0))
 		return (1);
 	if (write_action(4, philo))

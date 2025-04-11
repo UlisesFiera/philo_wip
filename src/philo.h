@@ -65,7 +65,7 @@ typedef struct s_data 	t_data;
 typedef struct			s_fork
 {
 	t_mutex	fork_mutex;
-	int		fork_id;
+	int		fork_id;	
 }						t_fork;
 
 typedef struct			s_philo
@@ -76,6 +76,7 @@ typedef struct			s_philo
 	long		meal_count;
 	int			full;
 	long		time_last_meal;
+	int			ready;
 	t_mutex		philo_mutex;
 	t_fork		*first_fork;
 	t_fork		*second_fork;
@@ -89,10 +90,12 @@ struct					s_data
 	long		time_to_eat;
 	long		time_to_sleep;
 	long		time_start;
+	long		smallest_time_left;
 	int			end_program;
 	long		nbr_max_meals;
 	int			all_threads_ready;
 	pthread_t	monitor_dead;
+	pthread_t	monitor_prio;
 	int			monitor_detached;
 	long		nbr_threads_ready;
 	t_mutex		data_mutex;
@@ -135,5 +138,6 @@ int		sleeping(t_philo *philo);
 int		think(t_philo *philo);
 int		write_action(int action, t_philo *philo);
 void	*dead_philos(void *input);
+void	*priority(void *data);
 
 #endif

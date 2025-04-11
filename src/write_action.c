@@ -25,8 +25,10 @@ int	write_action(int action, t_philo *philo)
 	elapsed =  current - (philo->input->time_start);
 	if ((ret_value = get_status(&philo->input->data_mutex, &philo->input->end_program)) == 0)
 	{
-		if ((action == 4) || (action == 5)) 
-			printf(Y"Elapsed (ms): %-6ld"RST" %d has taken a fork\n", elapsed, philo->id);
+		if ((action == 4)) 
+			printf(Y"Elapsed (ms): %-6ld"RST" %d has one fork\n", elapsed, philo->id);
+		if ((action == 5)) 
+			printf(Y"Elapsed (ms): %-6ld"RST" %d has two forks\n", elapsed, philo->id);
 		if (action == 1)
 			printf(Y"Elapsed (ms): %-6ld"RST" %d has started eating\n", elapsed, philo->id);
 		if (action == 2)

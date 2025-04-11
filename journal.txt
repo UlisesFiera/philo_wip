@@ -17,4 +17,4 @@ Progress
 	   simulation.
 	5. All good but have to check if the monitor is working and if all 
 	   filos are actually full on end.
-	6. Philos are full.
+	6. With a delay of 100000 works for the 4 410 input, but not the rest.

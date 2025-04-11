@@ -40,6 +40,17 @@ void	actions(t_philo *philo)
 			return ;
 		else
 		{
+			ret_value = 0;
+			while (get_status(&philo->philo_mutex, &philo->ready) == 0)
+			{
+				ret_value = get_status(&philo->philo_mutex, &philo->ready);
+				if (ret_value == -1)
+				{
+					philo->input->end_program = 1;
+					return ;
+				}
+			}
+			printf("Philo %i ready? %i\n", philo->id, philo->ready);
 			if (eat(philo))
 			{
 				if (set_status(&philo->input->data_mutex, &philo->input->end_program, 1))
@@ -118,6 +129,8 @@ void	dinner_start(t_data *input)
 	}
 	if (safe_thread(&input->monitor_dead, dead_philos, input, 0))
 		return ;
+	if (safe_thread(&input->monitor_prio, priority, input, 0))
+		return ;
 	if (set_status(&input->data_mutex, &input->all_threads_ready, 1))
 		return ;
 	i = 0;
@@ -138,6 +151,7 @@ void	dinner_start(t_data *input)
 	if (set_status(&input->data_mutex, &input->end_program, 1))
 		return ;
 	safe_thread(&input->monitor_dead, NULL, NULL, 1);
+	safe_thread(&input->monitor_prio, NULL, NULL, 1);
 	input->monitor_detached = 1;
 	return ;
 }
