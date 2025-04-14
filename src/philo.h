@@ -112,6 +112,7 @@ long	timestamp(void);
 void	error_exit(char *error);
 int		data_init(t_data *input);
 void	free_all(t_data *data);
+void 	precise_usleep(long microseconds);
 
 // ·· Safe functions
 

@@ -25,6 +25,7 @@ SRCS					= src/main.c \
 						  src/free_all.c \
 						  src/monitoring.c \
 						  src/increase_long.c \
+						  src/ft_usleep.c \
 
 OBJS					= ${SRCS:.c=.o}
 

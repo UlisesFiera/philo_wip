@@ -14,16 +14,21 @@
 
 static void	assign_forks(t_philo *philo, t_fork *forks, int philo_position)
 {
-	int	nbr_philo;
+	t_fork	*fork1;
+	t_fork	*fork2;
 
-	nbr_philo = philo->input->nbr_philo;
+	fork1 = &forks[philo_position];
+	fork2 = &forks[(philo_position + 1) % philo->input->nbr_philo];
 
-	philo->first_fork = &forks[(philo_position + 1) % nbr_philo];  
-	philo->second_fork = &forks[philo_position];
-	if (philo->id % 2 == 0)
+	if (fork1 < fork2)
 	{
-		philo->first_fork = &forks[philo_position];
-		philo->second_fork = &forks[(philo_position + 1) % nbr_philo];
+		philo->first_fork = fork1;
+		philo->second_fork = fork2;
+	}
+	else
+	{
+		philo->first_fork = fork2;
+		philo->second_fork = fork1;
 	}
 }
 

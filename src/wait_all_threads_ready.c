@@ -17,7 +17,7 @@ int	wait_all_threads_ready(t_data *input)
 	int	ret_value;
 
 	while ((ret_value = get_status(&input->data_mutex, &input->all_threads_ready)) == 0)
-		usleep(1000);
+		precise_usleep(1000);
 	if (ret_value == -1)
 		return (1);
 	return (0);
@@ -29,6 +29,7 @@ int	all_threads_running(t_mutex *mutex, long *threads, long nbr_philo, t_data *i
 	{
 		if (set_status(&input->data_mutex, &input->end_program, 1))
 		{
+			printf("Exit on all_th failure\n");
 			input->end_program = 1;
 			return (1);
 		}
@@ -38,6 +39,7 @@ int	all_threads_running(t_mutex *mutex, long *threads, long nbr_philo, t_data *i
 		if (safe_mutex(mutex, 1))
 			if (set_status(&input->data_mutex, &input->end_program, 1))
 			{
+				printf("Exit on all_th failure\n");
 				input->end_program = 1;
 				return (1);
 			}
@@ -47,6 +49,7 @@ int	all_threads_running(t_mutex *mutex, long *threads, long nbr_philo, t_data *i
 	{
 		if (set_status(&input->data_mutex, &input->end_program, 1))
 		{
+			printf("Exit on all_th failure\n");
 			input->end_program = 1;
 			return (1);
 		}

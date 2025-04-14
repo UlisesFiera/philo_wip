@@ -39,7 +39,7 @@ int	eat(t_philo *philo)
 	philo->meal_count++;
 	if (write_action(1, philo))
 		return (1);
-	usleep(philo->input->time_to_eat);
+	precise_usleep(philo->input->time_to_eat);
 	if (philo->input->nbr_max_meals > 0
 		&& philo->meal_count == philo->input->nbr_max_meals)
 		if (set_status(&philo->philo_mutex, &philo->full, 1))
