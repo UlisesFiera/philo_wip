@@ -20,11 +20,11 @@ void	detach_all(t_data *input)
 	while (i < input->nbr_philo)
 	{
 		if (input->philos[i].detached == 0)
-			safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 2);
+			safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 2, input);
 		i++;
 	}
 	if (input->monitor_detached == 0)
-		safe_thread(&input->monitor_dead, NULL, NULL, 2);
+		safe_thread(&input->monitor_dead, NULL, NULL, 2, input);
 }
 
 void	destroy_mutex(t_data *input)
@@ -32,17 +32,17 @@ void	destroy_mutex(t_data *input)
 	int	i;
 	
 	i = 0;
-	safe_mutex(&input->data_mutex, 3);
-	safe_mutex(&input->write_mutex, 3);
+	safe_mutex(&input->data_mutex, 3, input);
+	safe_mutex(&input->write_mutex, 3, input);
 	while (i < input->nbr_philo)
 	{
-		safe_mutex(&input->forks[i].fork_mutex, 3);
+		safe_mutex(&input->forks[i].fork_mutex, 3, input);
 		i++;
 	}
 	i = 0;
 	while (i < input->nbr_philo)
 	{
-		safe_mutex(&input->philos[i].philo_mutex, 3);
+		safe_mutex(&input->philos[i].philo_mutex, 3, input);
 		i++;
 	}
 }

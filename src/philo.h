@@ -65,7 +65,9 @@ typedef struct s_data 	t_data;
 typedef struct			s_fork
 {
 	t_mutex	fork_mutex;
-	int		fork_id;	
+	int		fork_id;
+	t_mutex	use_mutex;
+	int		fork_in_use;
 }						t_fork;
 
 typedef struct			s_philo
@@ -99,6 +101,7 @@ struct					s_data
 	int			monitor_detached;
 	long		nbr_threads_ready;
 	t_mutex		data_mutex;
+	t_mutex		end_mutex;
 	t_mutex		write_mutex;
 	t_fork		*forks;
 	t_philo		*philos;
@@ -108,7 +111,7 @@ struct					s_data
 // ·· Main functions
 
 int		parse_input(t_data *input, char **argv);
-long	timestamp(void);
+long	timestamp(t_data *input);
 void	error_exit(char *error);
 int		data_init(t_data *input);
 void	free_all(t_data *data);
@@ -116,28 +119,28 @@ void 	precise_usleep(long microseconds);
 
 // ·· Safe functions
 
-int		safe_mutex(t_mutex *mutex, int opcode);
+int		safe_mutex(t_mutex *mutex, int opcode, t_data *input);
 void	*safe_malloc(size_t bytes);
 int		safe_thread(pthread_t *philo_thread_id, void *(*function)(void *),
-					void *data, int opcode);
+					void *data, int opcode, t_data *input);
 
 // ·· Setters / Getters
 
-int		set_status(t_mutex *mutex, int *status, int value);
-int		set_long(t_mutex *mutex, long *number, long value);
-int		get_status(t_mutex *mutex, int *status);
-long	get_long(t_mutex *mutex, long *number);
-int		increase_long(t_mutex *mutex, long *value);
-int		wait_all_threads_ready(t_data *input);
+void	set_status(t_mutex *mutex, int *status, int value, t_data *input);
+void	set_long(t_mutex *mutex, long *number, long value, t_data *input);
+int		get_status(t_mutex *mutex, int *status, t_data *input);
+long	get_long(t_mutex *mutex, long *number, t_data *input);
+void	increase_long(t_mutex *mutex, long *value, t_data *input);
+void	wait_all_threads_ready(t_data *input);
 int		all_threads_running(t_mutex *mutex, long *threads, long nbr_philo, t_data *input);
 
 // ·· Dinner simulation
 
 void	dinner_start(t_data *input);
-int		eat(t_philo *philo);
-int		sleeping(t_philo *philo);
-int		think(t_philo *philo);
-int		write_action(int action, t_philo *philo);
+void	eat(t_philo *philo);
+void	sleeping(t_philo *philo);
+void	think(t_philo *philo);
+void	write_action(int action, t_philo *philo);
 void	*dead_philos(void *input);
 void	*priority(void *data);
 

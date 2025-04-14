@@ -12,41 +12,30 @@
 
 #include "philo.h"
 
-int	eat(t_philo *philo)
+void	eat(t_philo *philo)
 {
-	int	ret_value;
-
-	ret_value = 0;
-	while (get_status(&philo->philo_mutex, &philo->ready) == 0)
+	safe_mutex(&philo->first_fork->use_mutex, 0, philo->input);
+	safe_mutex(&philo->second_fork->use_mutex, 0, philo->input);
+	if (philo->first_fork->fork_in_use == 0 && philo->second_fork->fork_in_use == 0)
 	{
-		ret_value = get_status(&philo->philo_mutex, &philo->ready);
-		if (ret_value == -1)
-		{
-			philo->input->end_program = 1;
-			return (1);
-		}
+		philo->first_fork->fork_in_use = 1;
+		philo->second_fork->fork_in_use = 1;
+		safe_mutex(&philo->first_fork->fork_mutex, 0, philo->input);
+		write_action(4, philo);
+		safe_mutex(&philo->second_fork->fork_mutex, 0, philo->input);
+		write_action(5, philo);
+		set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp(philo->input), philo->input);
+		philo->meal_count++;
+		write_action(1, philo);
+		precise_usleep(philo->input->time_to_eat);
+		if (philo->input->nbr_max_meals > 0
+			&& philo->meal_count == philo->input->nbr_max_meals)
+			set_status(&philo->philo_mutex, &philo->full, 1, philo->input);
+		safe_mutex(&philo->first_fork->fork_mutex, 1, philo->input);
+		safe_mutex(&philo->second_fork->fork_mutex, 1, philo->input);
+		philo->first_fork->fork_in_use = 0;
+		philo->second_fork->fork_in_use = 0;
 	}
-	if (safe_mutex(&philo->first_fork->fork_mutex, 0))
-		return (1);
-	if (write_action(4, philo))
-		return (1);
-	if (safe_mutex(&philo->second_fork->fork_mutex, 0))
-		return (1);
-	if (write_action(5, philo))
-		return (1);
-	if (set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp()))
-		return (1);
-	philo->meal_count++;
-	if (write_action(1, philo))
-		return (1);
-	precise_usleep(philo->input->time_to_eat);
-	if (philo->input->nbr_max_meals > 0
-		&& philo->meal_count == philo->input->nbr_max_meals)
-		if (set_status(&philo->philo_mutex, &philo->full, 1))
-			return (1);
-	if (safe_mutex(&philo->first_fork->fork_mutex, 1))
-		return (1);
-	if (safe_mutex(&philo->second_fork->fork_mutex, 1))
-		return (1);
-	return (0);
+	safe_mutex(&philo->first_fork->use_mutex, 1, philo->input);
+	safe_mutex(&philo->second_fork->use_mutex, 1, philo->input);
 }

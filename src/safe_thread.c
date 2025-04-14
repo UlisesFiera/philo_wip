@@ -12,45 +12,40 @@
 
 #include "philo.h"
 
-int	exec_thread(int return_value, int opcode)
+int	exec_thread(int return_value, int opcode, t_data *input)
 {
 	if (!return_value)
 		return (0);
 	else
 	{
 		if (opcode == 0)
-		{
 			error_exit("Thread creation failure.");
-		}
 		if (opcode == 1)
-		{
 			error_exit("Thread joining failure.");
-		}
 		if (opcode == 2)
-		{
 			error_exit("Thread detach failure.");
-		}
+		input->end_program = 1;
 		return (1);
 	}
 }
 
 int	safe_thread(pthread_t *thread, void *(*function)(void *),
-					void *data, int opcode)
+					void *data, int opcode, t_data *input)
 {
 	if (opcode == 0)
 	{
 		if (exec_thread(pthread_create(thread,
-			NULL, function, data), 0))
+			NULL, function, data), 0, input))
 			return (1);
 	}
 	else if (opcode == 1)
 	{
-		if (exec_thread(pthread_join(*thread, NULL), 1))
+		if (exec_thread(pthread_join(*thread, NULL), 1, input))
 			return (1);
 	}
 	else if (opcode == 2)
 	{
-		if (exec_thread(pthread_detach(*thread), 2))
+		if (exec_thread(pthread_detach(*thread), 2, input))
 			return (1);
 	}
 	return (0);

@@ -15,7 +15,6 @@
 void	*priority(void *data)
 {
 	t_data		*input;
-	long		ret_value;
 	long		now;
 	long		time_left;
 	long		smallest_time_left;
@@ -26,48 +25,26 @@ void	*priority(void *data)
 	while (!all_threads_running(&input->data_mutex,
 			&input->nbr_threads_ready, input->nbr_philo, input))
 		;
-	smallest_time_left = get_long(&input->data_mutex, &input->time_to_die);
-	while ((ret_value = get_status(&input->data_mutex, &input->end_program)) == 0)
+	smallest_time_left = get_long(&input->data_mutex, &input->time_to_die, input);
+	while (get_status(&input->end_mutex, &input->end_program, input) == 0)
 	{
 		i = 0;
 		while (i < input->nbr_philo)
 		{
-			now = timestamp();
-			time_left = (get_long(&input->data_mutex, &input->time_to_die) / 1e3) - (now - get_long(&input->philos[i].philo_mutex, &input->philos[i].time_last_meal));
-			if (time_left < smallest_time_left && (smallest_time_left - time_left) > 50)
+			now = timestamp(input);
+			time_left = (get_long(&input->data_mutex, &input->time_to_die, input) / 1e3)
+				- (now - get_long(&input->philos[i].philo_mutex, &input->philos[i].time_last_meal, input));
+			if (time_left < smallest_time_left && ((smallest_time_left - time_left) > 100)) // Can we try to change it to a flag that marks only a priority if there's x ms left for it, and let everyone try until then; so the flag marks just the most urgent and unmarks it later
 			{
-				if (set_long(&input->data_mutex, &input->smallest_time_left, time_left))
-				{
-					set_status(&input->data_mutex, &input->end_program, 1);
-					printf("Exit on long failure\n");
-					return (NULL);
-				}
-				if (set_status(&input->philos[i].philo_mutex, &input->philos[i].ready, 1))
-				{
-					set_status(&input->data_mutex, &input->end_program, 1);
-					printf("Exit on status failure\n");
-					return (NULL);
-				}
-				//printf("Philo %i had %ldms to die\n", input->philos[i].id, time_left);
 				j = 0;
 				while (j < input->nbr_philo)
 				{
 					if (j != i)
-						set_status(&input->philos[j].philo_mutex, &input->philos[j].ready, 0);
+						set_status(&input->philos[j].philo_mutex, &input->philos[j].ready, 0, input);
 					j++;
 				}
-			}
-			if (smallest_time_left == -1)
-			{
-				set_status(&input->data_mutex, &input->end_program, 1);
-				printf("smallest %ld left %ld\n", smallest_time_left, time_left);
-				return (NULL);
-			}
-			if (ret_value == 1)
-			{
-				set_status(&input->data_mutex, &input->end_program, 1);
-				printf("Exit on ret failure\n");
-				return (NULL);
+				set_status(&input->philos[i].philo_mutex, &input->philos[i].ready, 1, input);
+				set_long(&input->data_mutex, &input->smallest_time_left, time_left, input);
 			}
 			i++;
 		}
@@ -80,15 +57,12 @@ int		philo_died(t_philo *philo)
 {
 	long	elapsed;
 	long	last_meal;
-	int		ret_value;
 
-	if ((ret_value = get_status(&philo->philo_mutex, &philo->full)) == 1)
+	if (get_status(&philo->philo_mutex, &philo->full, philo->input) == 1)
 		return (0);
-	last_meal = get_long(&philo->philo_mutex, &philo->time_last_meal);
-	if (last_meal == -1)
-		return (2);
-	elapsed = timestamp() - last_meal;
-	if (elapsed >= philo->input->time_to_die / 1e3 + 20)
+	last_meal = get_long(&philo->philo_mutex, &philo->time_last_meal, philo->input);
+	elapsed = timestamp(philo->input) - last_meal;
+	if (elapsed >= philo->input->time_to_die / (1e3 + 10))
 		return (1);
 	return (0);
 }
@@ -96,7 +70,6 @@ int		philo_died(t_philo *philo)
 void	*dead_philos(void *data)
 {
 	t_data	*input;
-	int		ret_value;
 	int		philo_status;
 	int		i;
 
@@ -104,7 +77,7 @@ void	*dead_philos(void *data)
 	while (!all_threads_running(&input->data_mutex,
 			&input->nbr_threads_ready, input->nbr_philo, input))
 		;
-	while ((ret_value = get_status(&input->data_mutex, &input->end_program)) == 0)
+	while (get_status(&input->end_mutex, &input->end_program, input) == 0)
 	{
 		i = 0;
 		while (i < input->nbr_philo)
@@ -112,26 +85,13 @@ void	*dead_philos(void *data)
 			philo_status = philo_died(input->philos + i);
 			if (philo_status == 1)
 			{
-				printf("Exit on philo died\n");
 				write_action(0, input->philos + i);
-				set_status(&input->data_mutex, &input->end_program, 1);
-				return (NULL);
-			}
-			else if (philo_died(input->philos + i) == 2)
-			{
-				printf("Exit on died failure\n");
-				set_status(&input->data_mutex, &input->end_program, 1);
+				set_status(&input->end_mutex, &input->end_program, 1, input);
 				return (NULL);
 			}
 			i++;
 		}
-		precise_usleep(100);
-	}
-	if (ret_value == -1)
-	{
-		printf("Exit on died failure\n");
-		set_status(&input->data_mutex, &input->end_program, 1);
-		return (NULL);
+		precise_usleep(10);
 	}
 	return (NULL);
 }

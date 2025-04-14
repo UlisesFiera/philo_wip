@@ -12,14 +12,15 @@
 
 #include "philo.h"
 
-long	timestamp(void)
+long	timestamp(t_data *input)
 {
 	struct timeval	tv;
 
 	if (gettimeofday(&tv, NULL))
 	{
 		error_exit("'gettimeofday' failure");
-		return (-1);
+		set_status(&input->end_mutex, &input->end_program, 1, input);
+		return (1);
 	}
 	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }

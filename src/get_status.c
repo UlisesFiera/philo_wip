@@ -12,14 +12,12 @@
 
 #include "philo.h"
 
-int	get_status(t_mutex *mutex, int *status)
+int	get_status(t_mutex *mutex, int *status, t_data *input)
 {
 	int	ret_value;
-
-	if (safe_mutex(mutex, 0))
-		return (-1);
+	
+	safe_mutex(mutex, 0, input);
 	ret_value = *status;
-	if (safe_mutex(mutex, 1))
-		return (-1);
+	safe_mutex(mutex, 1, input);
 	return (ret_value);
 }

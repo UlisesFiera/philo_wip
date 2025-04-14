@@ -12,12 +12,9 @@
 
 #include "philo.h"
 
-int	set_status(t_mutex *mutex, int *status, int value)
+void	set_status(t_mutex *mutex, int *status, int value, t_data *input)
 {
-	if (safe_mutex(mutex, 0))
-		return (1);
+	safe_mutex(mutex, 0, input);
 	*status = value;
-	if (safe_mutex(mutex, 1))
-		return (1);
-	return (0);
+	safe_mutex(mutex, 1, input);
 }

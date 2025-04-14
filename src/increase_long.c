@@ -12,12 +12,9 @@
 
 #include "philo.h"
 
-int	increase_long(t_mutex *mutex, long *value)
+void	increase_long(t_mutex *mutex, long *value, t_data *input)
 {
-	if (safe_mutex(mutex, 0))
-		return (1);
+	safe_mutex(mutex, 0, input);
 	(*value)++;
-	if (safe_mutex(mutex, 1))
-		return (1);
-	return (0);
+	safe_mutex(mutex, 1, input);
 }

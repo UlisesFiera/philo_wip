@@ -12,18 +12,15 @@
 
 #include "philo.h"
 
-int	write_action(int action, t_philo *philo)
+void	write_action(int action, t_philo *philo)
 {
 	long	elapsed;
 	long	current;
-	int		ret_value;
 
-	if (safe_mutex(&philo->input->write_mutex, 0))
-		return (1);
-	if ((current = timestamp()) == -1)
-		return (1);
+	safe_mutex(&philo->input->write_mutex, 0, philo->input);
+	current = timestamp(philo->input);
 	elapsed =  current - (philo->input->time_start);
-	if ((ret_value = get_status(&philo->input->data_mutex, &philo->input->end_program)) == 0)
+	if (get_status(&philo->input->data_mutex, &philo->input->end_program, philo->input) == 0)
 	{
 		if ((action == 4)) 
 			printf(Y"Elapsed (ms): %-6ld"RST" %d has one fork\n", elapsed, philo->id);
@@ -38,11 +35,7 @@ int	write_action(int action, t_philo *philo)
 	}
 	if (action == 0)
 		printf(Y"Elapsed (ms): %-6ld" R " %d has died\n" RST, elapsed, philo->id);
-	if (ret_value == -1)
-		return (1);
-	if (safe_mutex(&philo->input->write_mutex, 1))
-		return (1);
-	return (0);
+	safe_mutex(&philo->input->write_mutex, 1, philo->input);
 }
 
 /* ACTION OPCODES

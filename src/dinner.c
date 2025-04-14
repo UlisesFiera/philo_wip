@@ -17,80 +17,35 @@ void	*one_philo(void *data)
 	t_philo	*philo;
 
 	philo = (t_philo *)data;
-	if (wait_all_threads_ready(philo->input))
-		return (NULL);
-	if (set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp()))
-		return (NULL);
-	if (increase_long(&philo->input->data_mutex, &philo->input->nbr_threads_ready))
-		return (NULL);
-	if (write_action(4, philo))
-		return (NULL);
-	while (!get_status(&philo->input->data_mutex, &philo->input->end_program))
+	wait_all_threads_ready(philo->input);
+	set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp(philo->input), philo->input);
+	increase_long(&philo->input->data_mutex, &philo->input->nbr_threads_ready, philo->input);
+	write_action(4, philo);
+	while (get_status(&philo->input->end_mutex, &philo->input->end_program, philo->input) == 0)
 		precise_usleep(200);
 	return (NULL);
 }
 
 void	actions(t_philo *philo)
 {
-	int		ret_value;
-
-	while ((ret_value = get_status(&philo->input->data_mutex, &philo->input->end_program)) == 0)
+	while ((get_status(&philo->input->end_mutex, &philo->input->end_program, philo->input)) == 0)
 	{
 		if (philo->full)
 			return ;
 		else
 		{
-			ret_value = 0;
-			while (get_status(&philo->philo_mutex, &philo->ready) == 0)
+			while ((get_status(&philo->philo_mutex, &philo->ready, philo->input) == 0))
 			{
-				ret_value = get_status(&philo->philo_mutex, &philo->ready);
-				if (ret_value == -1)
-				{
-					printf("Exit on actions failure\n");
-					philo->input->end_program = 1;
+				if (get_status(&philo->input->end_mutex, &philo->input->end_program, philo->input) == 1)
 					return ;
-				}
+				get_status(&philo->philo_mutex, &philo->ready, philo->input);
 			}
-			//printf("Philo %i ready? %i\n", philo->id, philo->ready);
-			if (eat(philo))
-			{
-				if (set_status(&philo->input->data_mutex, &philo->input->end_program, 1))
-				{
-					printf("Exit on actions failure\n");
-					philo->input->end_program = 1;
-					return ;
-				}
-				return ;
-			}
+			eat(philo);
 			if (philo->full)
 				return ;
-			if (sleeping(philo))
-			{
-				if (set_status(&philo->input->data_mutex, &philo->input->end_program, 1))
-				{
-					printf("Exit on actions failure\n");
-					philo->input->end_program = 1;
-					return ;
-				}
-				return ;
-			}
-			if (think(philo))
-			{
-				if (set_status(&philo->input->data_mutex, &philo->input->end_program, 1))
-				{
-					printf("Exit on actions failure\n");
-					philo->input->end_program = 1;
-					return ;
-				}
-				return ;
-			}
+			sleeping(philo);
+			think(philo);
 		}
-	}
-	if (ret_value == -1)
-	{
-		printf("Exit on actions failure\n");
-		philo->input->end_program = 1;
-		return ;
 	}
 	return ;
 }
@@ -100,12 +55,9 @@ void	*dinner_simulation(void *input)
 	t_philo	*philo;
 
 	philo = (t_philo *)input;
-	if (wait_all_threads_ready(philo->input))
-		return (NULL);
-	if (set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp()))
-		return (NULL);
-	if (increase_long(&philo->input->data_mutex, &philo->input->nbr_threads_ready))
-		return (NULL);
+	wait_all_threads_ready(philo->input);
+	set_long(&philo->philo_mutex, &philo->time_last_meal, timestamp(input), input);
+	increase_long(&philo->input->data_mutex, &philo->input->nbr_threads_ready, input);
 	actions(philo);
 	return (NULL);
 }
@@ -117,48 +69,31 @@ void	dinner_start(t_data *input)
 	i = 0;
 	if (input->nbr_max_meals == 0)
 		return ;
-	else if (input->nbr_philo == 1)
-	{
-		if (safe_thread(&input->philos[0].philo_thread_id, one_philo, &input->philos[0], 0))
-			return ;
-	}
+	if (input->nbr_philo == 1)
+		safe_thread(&input->philos[0].philo_thread_id, one_philo, &input->philos[0], 0, input);
 	else
 	{
 		while (i < input->nbr_philo)
 		{
-			if (safe_thread(&input->philos[i].philo_thread_id, dinner_simulation,
-						&input->philos[i], 0))
-						return ;
+			safe_thread(&input->philos[i].philo_thread_id, dinner_simulation,
+						&input->philos[i], 0, input);
 			i++;
 		}
 	}
-	if (safe_thread(&input->monitor_dead, dead_philos, input, 0))
-		return ;
-	if (safe_thread(&input->monitor_prio, priority, input, 0))
-		return ;
-	if (set_status(&input->data_mutex, &input->all_threads_ready, 1))
-		return ;
+	safe_thread(&input->monitor_dead, dead_philos, input, 0, input);
+	safe_thread(&input->monitor_prio, priority, input, 0, input);
+	set_status(&input->data_mutex, &input->all_threads_ready, 1, input);
 	i = 0;
 	while (i < input->nbr_philo)
 	{
-		if (safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 1))
-		{
-			if (set_status(&input->data_mutex, &input->end_program, 1))
-			{
-				printf("Exit on dinner failure\n");
-				input->end_program = 1;
-				return ;
-			}
-			return ;
-		}
+		safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 1, input);
 		input->philos[i].detached = 1;
 		i++;
 	}
-	if (set_status(&input->data_mutex, &input->end_program, 1))
-		return ;
+	set_status(&input->data_mutex, &input->end_program, 1, input);
 	printf("Exit on completion\n");
-	safe_thread(&input->monitor_dead, NULL, NULL, 1);
-	safe_thread(&input->monitor_prio, NULL, NULL, 1);
+	safe_thread(&input->monitor_dead, NULL, NULL, 1, input);
+	safe_thread(&input->monitor_prio, NULL, NULL, 1, input);
 	input->monitor_detached = 1;
 	return ;
 }

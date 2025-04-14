@@ -12,9 +12,7 @@
 
 #include "philo.h"
 
-int	think(t_philo *philo)
+void	think(t_philo *philo)
 {
-	if (write_action(3, philo))
-		return (1);
-	return (0);
+	write_action(3, philo);
 }
