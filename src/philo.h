@@ -139,7 +139,7 @@ int		all_threads_running(t_mutex *mutex, long *threads, long nbr_philo, t_data *
 void	dinner_start(t_data *input);
 void	eat(t_philo *philo);
 void	sleeping(t_philo *philo);
-void	think(t_philo *philo);
+void	think(t_philo *philo, int startup);
 void	write_action(int action, t_philo *philo);
 void	*dead_philos(void *input);
 void	*priority(void *data);

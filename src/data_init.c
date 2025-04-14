@@ -44,7 +44,7 @@ int	philo_init(t_data *input)
 		philo->id = i + 1;
 		philo->full = 0;
 		philo->meal_count = 0;
-		philo->ready = 0;
+		philo->ready = 1;
 		philo->detached = 0;
 		philo->input = input;
 		safe_mutex(&philo->philo_mutex, 2, input);
@@ -62,7 +62,6 @@ int	data_init(t_data *input)
 	input->all_threads_ready = 0;
 	input->nbr_threads_ready = 0;
 	input->monitor_detached = 0;
-	input->smallest_time_left = 0;
 	if (!(input->philos = safe_malloc(sizeof(t_philo) * input->nbr_philo))
 		|| !(input->forks = safe_malloc(sizeof(t_fork) * input->nbr_philo)))
 		return (1);

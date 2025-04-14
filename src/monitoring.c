@@ -17,7 +17,6 @@ void	*priority(void *data)
 	t_data		*input;
 	long		now;
 	long		time_left;
-	long		smallest_time_left;
 	int			i;
 	int			j;
 
@@ -25,7 +24,6 @@ void	*priority(void *data)
 	while (!all_threads_running(&input->data_mutex,
 			&input->nbr_threads_ready, input->nbr_philo, input))
 		;
-	smallest_time_left = get_long(&input->data_mutex, &input->time_to_die, input);
 	while (get_status(&input->end_mutex, &input->end_program, input) == 0)
 	{
 		i = 0;
@@ -34,21 +32,33 @@ void	*priority(void *data)
 			now = timestamp(input);
 			time_left = (get_long(&input->data_mutex, &input->time_to_die, input) / 1e3)
 				- (now - get_long(&input->philos[i].philo_mutex, &input->philos[i].time_last_meal, input));
-			if (time_left < smallest_time_left && ((smallest_time_left - time_left) > 100)) // Can we try to change it to a flag that marks only a priority if there's x ms left for it, and let everyone try until then; so the flag marks just the most urgent and unmarks it later
+			j = 0;
+			while (j < input->nbr_philo)
 			{
+				if (get_status(&input->philos[j].philo_mutex, &input->philos[j].ready, input) == 2)
+					while (get_status(&input->philos[j].philo_mutex, &input->philos[j].ready, input) == 2)
+					{
+						if (get_status(&input->end_mutex, &input->end_program, input))
+							return (NULL);
+						;
+					}
+				j++;
+			}
+			if (time_left < 50)
+			{
+				printf("priority %i\n", input->philos[i].id);
 				j = 0;
+				set_status(&input->philos[i].philo_mutex, &input->philos[i].ready, 2, input);
 				while (j < input->nbr_philo)
 				{
 					if (j != i)
 						set_status(&input->philos[j].philo_mutex, &input->philos[j].ready, 0, input);
 					j++;
 				}
-				set_status(&input->philos[i].philo_mutex, &input->philos[i].ready, 1, input);
-				set_long(&input->data_mutex, &input->smallest_time_left, time_left, input);
 			}
 			i++;
 		}
-		precise_usleep(100);
+		//precise_usleep(10);
 	}
 	return (NULL);
 }
@@ -62,7 +72,7 @@ int		philo_died(t_philo *philo)
 		return (0);
 	last_meal = get_long(&philo->philo_mutex, &philo->time_last_meal, philo->input);
 	elapsed = timestamp(philo->input) - last_meal;
-	if (elapsed >= philo->input->time_to_die / (1e3 + 10))
+	if (elapsed >= philo->input->time_to_die / 1e3 + 10)
 		return (1);
 	return (0);
 }
