@@ -60,15 +60,31 @@ static long	atol_input(const char *string)
 	return (number);
 }
 
+int	nbr_die_eat_sleep(t_data *input, char **argv)
+{
+	int	ret_value;
+
+	ret_value = check_max_min(input->nbr_philo = (atol_input(argv[1])));
+	if (ret_value == 1)
+		return (1);
+	ret_value = check_max_min(input->time_to_die = (atol_input(argv[2]) * 1e3));
+	if (ret_value == 1)
+		return (1);
+	ret_value = check_max_min(input->time_to_eat = (atol_input(argv[3]) * 1e3));
+	if (ret_value == 1)
+		return (1);
+	ret_value = check_max_min(
+			input->time_to_sleep = (atol_input(argv[4]) * 1e3));
+	if (ret_value == 1)
+		return (1);
+	return (0);
+}
+
 int	parse_input(t_data *input, char **argv)
 {
-	if (check_max_min(input->nbr_philo = (atol_input(argv[1]))))
-		return (1);
-	if (check_max_min(input->time_to_die = (atol_input(argv[2]) * 1e3)))
-		return (1);
-	if (check_max_min(input->time_to_eat = (atol_input(argv[3]) * 1e3)))
-		return (1);
-	if (check_max_min(input->time_to_sleep  = (atol_input(argv[4]) * 1e3)))
+	int	ret_value;
+
+	if (nbr_die_eat_sleep(input, argv) == 1)
 		return (1);
 	if (input->time_to_die < 6e4
 		|| input->time_to_eat < 6e4
@@ -79,7 +95,8 @@ int	parse_input(t_data *input, char **argv)
 	}
 	if (argv[5])
 	{
-		if (check_max_min(input->nbr_max_meals = (atol_input(argv[5]))))
+		ret_value = check_max_min(input->nbr_max_meals = (atol_input(argv[5])));
+		if (ret_value == 1)
 			return (1);
 	}
 	else

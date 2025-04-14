@@ -60,9 +60,9 @@
 
 typedef pthread_mutex_t	t_mutex;
 
-typedef struct s_data 	t_data;
+typedef struct s_data	t_data;
 
-typedef struct			s_fork
+typedef struct s_fork
 {
 	t_mutex	fork_mutex;
 	int		fork_id;
@@ -70,7 +70,7 @@ typedef struct			s_fork
 	int		fork_in_use;
 }						t_fork;
 
-typedef struct			s_philo
+typedef struct s_philo
 {
 	int			id;
 	pthread_t	philo_thread_id;
@@ -78,26 +78,23 @@ typedef struct			s_philo
 	long		meal_count;
 	int			full;
 	long		time_last_meal;
-	int			ready;
 	t_mutex		philo_mutex;
 	t_fork		*first_fork;
 	t_fork		*second_fork;
 	t_data		*input;
 }						t_philo;
 
-struct					s_data
+struct s_data
 {
 	long		nbr_philo;
 	long		time_to_die;
 	long		time_to_eat;
 	long		time_to_sleep;
 	long		time_start;
-	long		smallest_time_left;
 	int			end_program;
 	long		nbr_max_meals;
 	int			all_threads_ready;
 	pthread_t	monitor_dead;
-	pthread_t	monitor_prio;
 	int			monitor_detached;
 	long		nbr_threads_ready;
 	t_mutex		data_mutex;
@@ -115,14 +112,14 @@ long	timestamp(t_data *input);
 void	error_exit(char *error);
 int		data_init(t_data *input);
 void	free_all(t_data *data);
-void 	precise_usleep(long microseconds);
+void	precise_usleep(long microseconds);
 
 // ·· Safe functions
 
 int		safe_mutex(t_mutex *mutex, int opcode, t_data *input);
 void	*safe_malloc(size_t bytes);
 int		safe_thread(pthread_t *philo_thread_id, void *(*function)(void *),
-					void *data, int opcode, t_data *input);
+			void *data, int opcode);
 
 // ·· Setters / Getters
 
@@ -132,7 +129,8 @@ int		get_status(t_mutex *mutex, int *status, t_data *input);
 long	get_long(t_mutex *mutex, long *number, t_data *input);
 void	increase_long(t_mutex *mutex, long *value, t_data *input);
 void	wait_all_threads_ready(t_data *input);
-int		all_threads_running(t_mutex *mutex, long *threads, long nbr_philo, t_data *input);
+int		all_threads_running(t_mutex *mutex, long *threads, long nbr_philo,
+			t_data *input);
 
 // ·· Dinner simulation
 

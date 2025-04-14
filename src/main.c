@@ -30,7 +30,7 @@ int	main(int argc, char **argv)
 	}
 	else
 	{
-		error_exit("Incorrect input\n" 
+		error_exit("Incorrect input\n"
 			Y "Use: <./philo nbr0 nbr1 nbr2 nbr3 [nbr4]" RST);
 	}
 	return (0);

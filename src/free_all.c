@@ -20,17 +20,17 @@ void	detach_all(t_data *input)
 	while (i < input->nbr_philo)
 	{
 		if (input->philos[i].detached == 0)
-			safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 2, input);
+			safe_thread(&input->philos[i].philo_thread_id, NULL, NULL, 2);
 		i++;
 	}
 	if (input->monitor_detached == 0)
-		safe_thread(&input->monitor_dead, NULL, NULL, 2, input);
+		safe_thread(&input->monitor_dead, NULL, NULL, 2);
 }
 
 void	destroy_mutex(t_data *input)
 {
 	int	i;
-	
+
 	i = 0;
 	safe_mutex(&input->data_mutex, 3, input);
 	safe_mutex(&input->write_mutex, 3, input);

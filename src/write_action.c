@@ -12,6 +12,32 @@
 
 #include "philo.h"
 
+void	print_message(int action, t_philo *philo, long elapsed)
+{
+	if (get_status(&philo->input->data_mutex, &philo->input->end_program,
+			philo->input) == 0)
+	{
+		if ((action == 4))
+			printf(Y"Elapsed (ms): %-6ld"RST" %d has one fork\n",
+				elapsed, philo->id);
+		if ((action == 5))
+			printf(Y"Elapsed (ms): %-6ld"RST" %d has two forks\n",
+				elapsed, philo->id);
+		if (action == 1)
+			printf(Y"Elapsed (ms): %-6ld"RST" %d has started eating\n",
+				elapsed, philo->id);
+		if (action == 2)
+			printf(Y"Elapsed (ms): %-6ld"RST" %d is sleeping\n",
+				elapsed, philo->id);
+		if (action == 3)
+			printf(Y"Elapsed (ms): %-6ld"RST" %d is thinking\n",
+				elapsed, philo->id);
+	}
+	if (action == 0)
+		printf(Y"Elapsed (ms): %-6ld" R " %d has died\n" RST,
+			elapsed, philo->id);
+}
+
 void	write_action(int action, t_philo *philo)
 {
 	long	elapsed;
@@ -19,22 +45,8 @@ void	write_action(int action, t_philo *philo)
 
 	safe_mutex(&philo->input->write_mutex, 0, philo->input);
 	current = timestamp(philo->input);
-	elapsed =  current - (philo->input->time_start);
-	if (get_status(&philo->input->data_mutex, &philo->input->end_program, philo->input) == 0)
-	{
-		if ((action == 4)) 
-			printf(Y"Elapsed (ms): %-6ld"RST" %d has one fork\n", elapsed, philo->id);
-		if ((action == 5)) 
-			printf(Y"Elapsed (ms): %-6ld"RST" %d has two forks\n", elapsed, philo->id);
-		if (action == 1)
-			printf(Y"Elapsed (ms): %-6ld"RST" %d has started eating\n", elapsed, philo->id);
-		if (action == 2)
-			printf(Y"Elapsed (ms): %-6ld"RST" %d is sleeping\n", elapsed, philo->id);
-		if (action == 3)
-			printf(Y"Elapsed (ms): %-6ld"RST" %d is thinking\n", elapsed, philo->id);
-	}
-	if (action == 0)
-		printf(Y"Elapsed (ms): %-6ld" R " %d has died\n" RST, elapsed, philo->id);
+	elapsed = current - (philo->input->time_start);
+	print_message(action, philo, elapsed);
 	safe_mutex(&philo->input->write_mutex, 1, philo->input);
 }
 

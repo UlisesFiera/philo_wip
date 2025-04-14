@@ -14,12 +14,14 @@
 
 void	wait_all_threads_ready(t_data *input)
 {
-		while (get_status(&input->data_mutex, &input->all_threads_ready, input) == 0
-			&& get_status(&input->end_mutex, &input->end_program, input) == 0)
-			precise_usleep(1000);
+	while (get_status(&input->data_mutex,
+			&input->all_threads_ready, input) == 0
+		&& get_status(&input->end_mutex, &input->end_program, input) == 0)
+		precise_usleep(1000);
 }
 
-int	all_threads_running(t_mutex *mutex, long *threads, long nbr_philo, t_data *input)
+int	all_threads_running(t_mutex *mutex, long *threads, long nbr_philo,
+	t_data *input)
 {
 	while (get_status(&input->end_mutex, &input->end_program, input) == 0)
 	{

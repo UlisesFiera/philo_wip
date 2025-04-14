@@ -12,65 +12,15 @@
 
 #include "philo.h"
 
-void	*priority(void *data)
-{
-	t_data		*input;
-	long		now;
-	long		time_left;
-	int			i;
-	int			j;
-
-	input = (t_data *)data;
-	while (!all_threads_running(&input->data_mutex,
-			&input->nbr_threads_ready, input->nbr_philo, input))
-		;
-	while (get_status(&input->end_mutex, &input->end_program, input) == 0)
-	{
-		i = 0;
-		while (i < input->nbr_philo)
-		{
-			now = timestamp(input);
-			time_left = (get_long(&input->data_mutex, &input->time_to_die, input) / 1e3)
-				- (now - get_long(&input->philos[i].philo_mutex, &input->philos[i].time_last_meal, input));
-			j = 0;
-			while (j < input->nbr_philo)
-			{
-				if (get_status(&input->philos[j].philo_mutex, &input->philos[j].ready, input) == 2)
-					while (get_status(&input->philos[j].philo_mutex, &input->philos[j].ready, input) == 2)
-					{
-						if (get_status(&input->end_mutex, &input->end_program, input))
-							return (NULL);
-						;
-					}
-				j++;
-			}
-			if (time_left < 50)
-			{
-				printf("priority %i\n", input->philos[i].id);
-				j = 0;
-				set_status(&input->philos[i].philo_mutex, &input->philos[i].ready, 2, input);
-				while (j < input->nbr_philo)
-				{
-					if (j != i)
-						set_status(&input->philos[j].philo_mutex, &input->philos[j].ready, 0, input);
-					j++;
-				}
-			}
-			i++;
-		}
-		//precise_usleep(10);
-	}
-	return (NULL);
-}
-
-int		philo_died(t_philo *philo)
+int	philo_died(t_philo *philo)
 {
 	long	elapsed;
 	long	last_meal;
 
 	if (get_status(&philo->philo_mutex, &philo->full, philo->input) == 1)
 		return (0);
-	last_meal = get_long(&philo->philo_mutex, &philo->time_last_meal, philo->input);
+	last_meal = get_long(&philo->philo_mutex, &philo->time_last_meal,
+			philo->input);
 	elapsed = timestamp(philo->input) - last_meal;
 	if (elapsed >= philo->input->time_to_die / 1e3 + 10)
 		return (1);

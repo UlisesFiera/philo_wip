@@ -12,11 +12,11 @@
 
 #include "philo.h"
 
-void precise_usleep(long microseconds)
+void	precise_usleep(long microseconds)
 {
-	struct timeval start;
-	struct timeval current;
-	long elapsed;
+	struct timeval	start;
+	struct timeval	current;
+	long			elapsed;
 
 	gettimeofday(&start, NULL);
 	elapsed = 0;

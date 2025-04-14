@@ -15,7 +15,7 @@
 int	get_status(t_mutex *mutex, int *status, t_data *input)
 {
 	int	ret_value;
-	
+
 	safe_mutex(mutex, 0, input);
 	ret_value = *status;
 	safe_mutex(mutex, 1, input);

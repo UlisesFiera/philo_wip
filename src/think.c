@@ -18,8 +18,8 @@ void	think(t_philo *philo, int startup)
 
 	safe_mutex(&philo->input->data_mutex, 0, philo->input);
 	time_to_think = ((philo->input->time_to_die
-		- (timestamp(philo->input) - philo->time_last_meal) 
-		- philo->input->time_to_eat) / 2) / 1e3;
+				- (timestamp(philo->input) - philo->time_last_meal)
+				- philo->input->time_to_eat) / 2) / 1e3;
 	if (time_to_think > philo->input->time_to_die / 2)
 		time_to_think = time_to_think / 2;
 	safe_mutex(&philo->input->data_mutex, 1, philo->input);

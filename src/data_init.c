@@ -19,7 +19,6 @@ static void	assign_forks(t_philo *philo, t_fork *forks, int philo_position)
 
 	fork1 = &forks[philo_position];
 	fork2 = &forks[(philo_position + 1) % philo->input->nbr_philo];
-
 	if (fork1 < fork2)
 	{
 		philo->first_fork = fork1;
@@ -44,7 +43,6 @@ int	philo_init(t_data *input)
 		philo->id = i + 1;
 		philo->full = 0;
 		philo->meal_count = 0;
-		philo->ready = 1;
 		philo->detached = 0;
 		philo->input = input;
 		safe_mutex(&philo->philo_mutex, 2, input);
@@ -52,6 +50,13 @@ int	philo_init(t_data *input)
 		i++;
 	}
 	return (0);
+}
+
+void	mutex_init(t_data *input)
+{
+	safe_mutex(&input->data_mutex, 2, input);
+	safe_mutex(&input->write_mutex, 2, input);
+	safe_mutex(&input->end_mutex, 2, input);
 }
 
 int	data_init(t_data *input)
@@ -62,13 +67,12 @@ int	data_init(t_data *input)
 	input->all_threads_ready = 0;
 	input->nbr_threads_ready = 0;
 	input->monitor_detached = 0;
-	if (!(input->philos = safe_malloc(sizeof(t_philo) * input->nbr_philo))
-		|| !(input->forks = safe_malloc(sizeof(t_fork) * input->nbr_philo)))
+	input->philos = safe_malloc(sizeof(t_philo) * input->nbr_philo);
+	input->forks = safe_malloc(sizeof(t_fork) * input->nbr_philo);
+	if (!input->philos || !input->forks)
 		return (1);
 	input->time_start = timestamp(input);
-	safe_mutex(&input->data_mutex, 2, input);
-	safe_mutex(&input->write_mutex, 2, input);
-	safe_mutex(&input->end_mutex, 2, input);
+	mutex_init(input);
 	i = 0;
 	while (i < input->nbr_philo)
 	{
